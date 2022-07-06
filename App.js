@@ -7,6 +7,7 @@ const connectDB = require("./database");
 
 //routes
 const userRoutes = require("./api/users/users.routes");
+const boardRoutes = require("./api/boards/boards.routes");
 
 connectDB();
 
@@ -19,6 +20,7 @@ passport.use(jwtStrategy);
 
 //User Route
 app.use(userRoutes);
+app.use("/boards", boardRoutes);
 
 //no path
 app.use((req, res, next) => {

@@ -64,7 +64,8 @@ async function tryCatch(promise) {
 
 async function queryUserData(id) {
   const selectedUserFields = "image backtick boards";
-  const selectedBoardFields = "title boardMembers slug -_id";
+  const selectedBoardFields =
+    "title description startDate endDate boardMembers createdBy  slug";
   const selectedBoardMemberFields = "userId points -_id";
   const selectedBoardMemberUserFields = "fname -_id";
 
