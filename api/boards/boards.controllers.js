@@ -13,10 +13,8 @@ exports.getBoards = async (req, res, next) => {
 };
 
 exports.createBoard = async (req, res, next) => {
-  const { userId } = req.body;
-
   // create board
-  const newBoard = { ...parseBodyToBoard(req.body), createdBy: userId };
+  const newBoard = parseAddBoardRequest(req.body);
   const [createdBoard, error] = await tryCatch(() => Board.create(newBoard));
   if (error) return next(error);
 
@@ -31,6 +29,33 @@ exports.createBoard = async (req, res, next) => {
   res.status(CREATED).json(createdBoard);
 };
 
+exports.updateBoard = async (req, res, next) => {
+  const board = parseUpdateBoardRequest(req.body);
+  const [updatedBoard, error] = await tryCatch(() =>
+    Board.findByIdAndUpdate(board._id, board, { returnDocument: "after" })
+  );
+  if (error) return next(error);
+
+  res.status(OK).json(updatedBoard);
+};
+
+exports.deleteBoard = async (req, res, next) => {
+  const { boardId } = req.params;
+
+  const [response, error] = await tryCatch(() =>
+    Promise.all([
+      Board.findByIdAndDelete(boardId),
+      User.findOneAndUpdate(
+        { boards: boardId },
+        { $pull: { boards: boardId } }
+      ),
+    ])
+  );
+  if (error) return next(error);
+
+  res.status(NO_CONTENT).end();
+};
+
 async function tryCatch(promise) {
   try {
     const response = await promise();
@@ -40,7 +65,12 @@ async function tryCatch(promise) {
   }
 }
 
-function parseBodyToBoard(reqBody) {
-  const { title, description, startDate, endDate } = reqBody;
-  return { title, description, startDate, endDate };
+function parseAddBoardRequest(reqBody) {
+  const { title, description, startDate, endDate, userId } = reqBody;
+  return { title, description, startDate, endDate, createdBy: userId };
+}
+
+function parseUpdateBoardRequest(reqBody) {
+  const { title, description, startDate, endDate, _id } = reqBody;
+  return { title, description, startDate, endDate, _id };
 }
