@@ -42,3 +42,12 @@ exports.getUsers = async (req, res) => {
     res.status(500).json("Server Error");
   }
 };
+
+async function tryCatch(promise) {
+  try {
+    const response = await promise();
+    return [response, null];
+  } catch (error) {
+    return [null, error];
+  }
+}
