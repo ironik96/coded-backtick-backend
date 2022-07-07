@@ -17,10 +17,9 @@ exports.createBoard = async (req, res, next) => {
   const newBoard = parseAddBoardRequest(req.body);
   const [createdBoard, error] = await tryCatch(() => Board.create(newBoard));
   if (error) return next(error);
-
   // update user boards
   const [response, userError] = await tryCatch(() =>
-    User.findByIdAndUpdate(userId, {
+    User.findByIdAndUpdate(newBoard.createdBy, {
       $push: { boards: createdBoard._id },
     })
   );
