@@ -12,6 +12,15 @@ exports.getBoards = async (req, res, next) => {
   res.status(OK).json(boards);
 };
 
+exports.getBoardById = async (req, res, next) => {
+  const { boardId } = req.params;
+  const [board, error] = await tryCatch(() =>
+    Board.findById(boardId).populate("tasks").populate("boardMembers")
+  );
+  if (error) return next(error);
+  res.status(OK).json(board);
+};
+
 exports.createBoard = async (req, res, next) => {
   // create board
   const newBoard = parseAddBoardRequest(req.body);

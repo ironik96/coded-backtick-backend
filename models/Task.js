@@ -11,6 +11,7 @@ const TaskSchema = new mongoose.Schema({
     type: String,
     enum: ["icebox", "todo", "doing", "review", "done"],
     required: true,
+    lowercase: true,
   },
   points: { type: Number, default: 0 },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "BoardMember" },
