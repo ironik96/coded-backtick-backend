@@ -20,9 +20,24 @@ exports.addTaskToBoard = async (req, res, next) => {
   res.status(CREATED).json(newTask);
 };
 
+exports.updateTask = async (req, res, next) => {
+  const task = parseUpdateTaskRequest(req.body);
+
+  const [updatedTask, error] = await tryCatch(() =>
+    Task.findByIdAndUpdate(task._id, task, { returnDocument: "after" })
+  );
+  if (error) return next(error);
+
+  res.status(OK).json(updatedTask);
+};
+
 function parseAddTaskRequest(requestBody) {
   const { title, boardId, list, points } = requestBody;
   return { title, boardId, list, points };
+}
+function parseUpdateTaskRequest(requestBody) {
+  const { _id, title, boardId, list, points } = requestBody;
+  return { _id, title, boardId, list, points };
 }
 
 async function tryCatch(promise) {
