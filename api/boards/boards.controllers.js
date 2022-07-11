@@ -1,5 +1,7 @@
 const User = require("../../models/User");
 const Board = require("../../models/Board");
+const BoardMember = require("../../models/BoardMember");
+const Task = require("../../models/Task");
 
 // status codes
 const OK = 200;
@@ -10,6 +12,15 @@ exports.getBoards = async (req, res, next) => {
   const [boards, error] = await tryCatch(() => Board.find());
   if (error) return next(error);
   res.status(OK).json(boards);
+};
+
+exports.getBoardById = async (req, res, next) => {
+  const { boardId } = req.params;
+  const [board, error] = await tryCatch(() =>
+    Board.findById(boardId).populate("tasks").populate("boardMembers")
+  );
+  if (error) return next(error);
+  res.status(OK).json(board);
 };
 
 exports.createBoard = async (req, res, next) => {
@@ -48,6 +59,8 @@ exports.deleteBoard = async (req, res, next) => {
         { boards: boardId },
         { $pull: { boards: boardId } }
       ),
+      BoardMember.deleteMany({ boardId }),
+      Task.deleteMany({ boardId }),
     ])
   );
   if (error) return next(error);
