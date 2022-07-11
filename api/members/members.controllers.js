@@ -34,8 +34,8 @@ exports.getMember = async (req, res, next) => {
 };
 exports.addMember = async (req, res, next) => {
   const { boardId } = req.params;
-
-  const [createMember, error1] = await tryCatch(() => Member.create(req.body));
+const newMember = parseAddMemberRequest(req.body);
+  const [createMember, error1] = await tryCatch(() => Member.create(newMember));
   if (error1) return next(error1);
   const [response, error] = await tryCatch(
     () =>
@@ -72,4 +72,9 @@ async function tryCatch(promise) {
   } catch (error) {
     return [null, error];
   }
+}
+
+function parseAddMemberRequest(reqBody) {
+  const {  boardId, userId } = reqBody;
+  return { role: "member", boardId:boardId, userId: userId };
 }
