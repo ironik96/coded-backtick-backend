@@ -1,5 +1,7 @@
 const User = require("../../models/User");
 const Board = require("../../models/Board");
+const BoardMember = require("../../models/BoardMember");
+const Task = require("../../models/Task");
 
 // status codes
 const OK = 200;
@@ -57,6 +59,8 @@ exports.deleteBoard = async (req, res, next) => {
         { boards: boardId },
         { $pull: { boards: boardId } }
       ),
+      BoardMember.deleteMany({ boardId }),
+      Task.deleteMany({ boardId }),
     ])
   );
   if (error) return next(error);
