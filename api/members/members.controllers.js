@@ -7,19 +7,6 @@ const OK = 200;
 const CREATED = 201;
 const NO_CONTENT = 204;
 
-exports.getMembers = async (req, res, next) => {
-  const { membersIds } = req.body;
-  const selectedFields = "fname lname";
-  const [members, error] = await tryCatch(() =>
-    Member.find({ _id: { $in: membersIds } }).populate({
-      path: "userId",
-      select: selectedFields,
-    })
-  );
-  if (error) return next(error);
-  res.status(200).json(members);
-};
-
 exports.getuser = async (req, res, next) => {
   const { userId } = req.params;
   const [user, error] = await tryCatch(() => User.findById(userId));
@@ -34,7 +21,7 @@ exports.getMember = async (req, res, next) => {
 };
 exports.addMember = async (req, res, next) => {
   const { boardId } = req.params;
-const newMember = parseAddMemberRequest(req.body);
+  const newMember = parseAddMemberRequest(req.body);
   const [createMember, error1] = await tryCatch(() => Member.create(newMember));
   if (error1) return next(error1);
   const [response, error] = await tryCatch(
@@ -75,6 +62,6 @@ async function tryCatch(promise) {
 }
 
 function parseAddMemberRequest(reqBody) {
-  const {  boardId, userId } = reqBody;
-  return { role: "member", boardId:boardId, userId: userId };
+  const { boardId, userId } = reqBody;
+  return { role: "member", boardId: boardId, userId: userId };
 }
