@@ -31,6 +31,20 @@ exports.updateTask = async (req, res, next) => {
   res.status(OK).json(updatedTask);
 };
 
+exports.deleteTask = async (req, res, next) => {
+  const { taskId } = req.params;
+
+  const [response, error] = await tryCatch(() =>
+    Promise.all([
+      Task.findByIdAndDelete(taskId),
+      Board.findOneAndUpdate({ tasks: taskId }, { $pull: { tasks: taskId } }),
+    ])
+  );
+  if (error) return next(error);
+
+  res.status(NO_CONTENT).end();
+};
+
 function parseAddTaskRequest(requestBody) {
   const { title, boardId, list, points } = requestBody;
   return { title, boardId, list, points };

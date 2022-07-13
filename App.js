@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const passport = require("passport");
+const morgan = require("morgan");
 const cors = require("cors");
 const { localStrategy, jwtStrategy } = require("./middleware/passport");
 const connectDB = require("./database");
@@ -17,6 +18,11 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
+app.use(
+  morgan(
+    "[:date[clf]] :method :url :status :response-time ms - :res[content-length]"
+  )
+);
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
