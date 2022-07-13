@@ -16,8 +16,18 @@ exports.getBoards = async (req, res, next) => {
 
 exports.getBoardById = async (req, res, next) => {
   const { boardId } = req.params;
+
+  const selectedUserFields = "fname lname";
   const [board, error] = await tryCatch(() =>
-    Board.findById(boardId).populate("tasks").populate("boardMembers")
+    Board.findById(boardId)
+      .populate("tasks")
+      .populate({
+        path: "boardMembers",
+        populate: {
+          path: "userId",
+          select: selectedUserFields,
+        },
+      })
   );
   if (error) return next(error);
   res.status(OK).json(board);

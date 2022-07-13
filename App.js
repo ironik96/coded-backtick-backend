@@ -9,6 +9,7 @@ const connectDB = require("./database");
 //routes
 const userRoutes = require("./api/users/users.routes");
 const boardRoutes = require("./api/boards/boards.routes");
+const boardMembersRoutes = require("./api/members/members.routes");
 const taskRoutes = require("./api/tasks/tasks.routes");
 
 connectDB();
@@ -28,6 +29,7 @@ passport.use(jwtStrategy);
 //User Route
 app.use(userRoutes);
 app.use("/boards", boardRoutes);
+app.use("/boardMembers", boardMembersRoutes);
 app.use("/tasks", taskRoutes);
 
 //no path
