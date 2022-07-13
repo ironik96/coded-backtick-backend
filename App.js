@@ -17,7 +17,11 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
-app.use(morgan("dev"));
+app.use(
+  morgan(
+    "[:date[clf]] :method :url :status :response-time ms - :res[content-length]"
+  )
+);
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
