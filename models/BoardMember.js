@@ -13,6 +13,7 @@ const BoardMemberSchema = new mongoose.Schema({
   role: { type: String, enum: ["admin", "member"], required: true },
   points: { type: Number, default: 0 },
   rewards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
+  rank: { type: Number, default: 0 },
 });
 
 module.exports = mongoose.model("BoardMember", BoardMemberSchema);

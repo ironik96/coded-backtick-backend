@@ -36,6 +36,14 @@ exports.addMember = async (req, res, next) => {
   if (error) return next(error);
   res.status(CREATED).json(response);
 };
+exports.updateMember = async (req, res, next) => {
+  const { memberId } = req.params;
+  const newMember = parseAddMemberRequest(req.body);
+  const [updatedmember, error1] = await tryCatch(() => Member.findByIdAndUpdate(memberId, req.body))
+  if (error1) return next(error1);
+  
+  res.status(OK).json(updatedmember);
+};
 
 exports.deleteMember = async (req, res, next) => {
   const { boardId } = req.params;
