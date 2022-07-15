@@ -11,6 +11,7 @@ const userRoutes = require("./api/users/users.routes");
 const boardRoutes = require("./api/boards/boards.routes");
 const boardMembersRoutes = require("./api/members/members.routes");
 const taskRoutes = require("./api/tasks/tasks.routes");
+const notificationRoutes = require("./api/notifications/notifications.routes");
 
 connectDB();
 
@@ -31,6 +32,7 @@ app.use(userRoutes);
 app.use("/boards", boardRoutes);
 app.use("/boardMembers", boardMembersRoutes);
 app.use("/tasks", taskRoutes);
+app.use("/notifications", notificationRoutes);
 
 //no path
 app.use((req, res, next) => {
