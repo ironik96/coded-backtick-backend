@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const { localStrategy, jwtStrategy } = require("./middleware/passport");
 const connectDB = require("./database");
+const { Server } = require("socket.io");
 
 //routes
 const userRoutes = require("./api/users/users.routes");
@@ -47,6 +48,19 @@ app.use((err, req, res, next) => {
 });
 
 //Backend on Localhost:8000
-app.listen(8000, () => {
+const server = app.listen(8000, () => {
   console.log("The application is running on localhost:8000");
 });
+
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("new user connected");
+  socket.emit("message", "welcome to my server 😈");
+});
+
+module.exports = io;

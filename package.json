@@ -25,6 +25,7 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.19.0",
     "sequelize-cli": "^6.4.1",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "socket.io": "^4.5.1"
   }
 }
