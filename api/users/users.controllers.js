@@ -74,6 +74,7 @@ async function queryUserData(id) {
       populate: {
         path: "boardMembers",
         select: selectedBoardMemberFields,
+        options: { limit: 3, sort: { points: -1 } },
         populate: { path: "userId", select: selectedBoardMemberUserFields },
       },
     })
