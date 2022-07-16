@@ -15,8 +15,14 @@ exports.getNotifications = async (req, res, next) => {
 
   res.status(OK).json(notifications);
 };
+exports.getAllNotifications = async (req, res, next) => {
+  const [notifications, error] = await tryCatch(() => Notification.find());
+  if (error) next(error);
+
+  res.status(OK).json(notifications);
+};
 exports.createNotification = async (req, res, next) => {
-  const notificationRequest = parseAddNotificationsRequest(req.body);
+  const notificationRequest = parseNotificationsRequest(req.body);
 
   const [notification, error] = await tryCatch(() =>
     Notification.create(notificationRequest)
@@ -26,9 +32,24 @@ exports.createNotification = async (req, res, next) => {
   res.status(CREATED).json(notification);
 };
 
-function parseAddNotificationsRequest(requestBody) {
-  const { userId, title, type, boardId, senderId } = requestBody;
-  return { userId, title, type, boardId, senderId };
+exports.updateNotification = async (req, res, next) => {
+  const notificationRequest = parseNotificationsRequest(req.body);
+
+  const [notification, error] = await tryCatch(() =>
+    Notification.findByIdAndUpdate(
+      notificationRequest._id,
+      notificationRequest,
+      { returnDocument: "after" }
+    )
+  );
+  if (error) next(error);
+
+  res.status(OK).json(notification);
+};
+
+function parseNotificationsRequest(requestBody) {
+  const { _id, userId, title, type, boardId, senderId, seen } = requestBody;
+  return { _id, userId, title, type, boardId, senderId, seen };
 }
 
 async function tryCatch(promise) {
