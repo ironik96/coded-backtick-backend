@@ -13,16 +13,24 @@ exports.getuser = async (req, res, next) => {
   if (error) return next(error);
   res.status(OK).json(user);
 };
+exports.getUserMemberId = async (req, res, next) => {
+  const { userId } = req.params;
+  const [user, error] = await tryCatch(() => Member.find({userId : userId}));
+  if (error) return next(error);
+  res.status(OK).json(user);
+};
 exports.getMember = async (req, res, next) => {
   const { memberId } = req.params;
   const [member, error] = await tryCatch(() => Member.findById(memberId));
   if (error) return next(error);
   res.status(OK).json(member);
 };
+
 exports.addMember = async (req, res, next) => {
   const { boardId } = req.params;
   const newMember = parseAddMemberRequest(req.body);
-  const [createMember, error1] = await tryCatch(() => Member.create(newMember));
+  const selectedUserFields = "fname lname";
+  let [createMember, error1] = await tryCatch(() => Member.create(newMember));
   if (error1) return next(error1);
   const [response, error] = await tryCatch(
     () =>
@@ -32,9 +40,16 @@ exports.addMember = async (req, res, next) => {
     User.findByIdAndUpdate(req.body.userId, {
       $push: { boards: boardId },
     })
+    
   );
+  createMember = await createMember.populate({
+    path: "userId",
+    select: selectedUserFields,
+  })
+  
+
   if (error) return next(error);
-  res.status(CREATED).json(response);
+  res.status(CREATED).json(createMember);
 };
 exports.updateMember = async (req, res, next) => {
   const { memberId } = req.params;
@@ -45,14 +60,25 @@ exports.updateMember = async (req, res, next) => {
   res.status(OK).json(updatedmember);
 };
 
-exports.deleteMember = async (req, res, next) => {
+exports.deleteBoardMember = async (req, res, next) => {
   const { boardId } = req.params;
   const { memberId } = req.params;
   console.log(memberId, "//");
   const [response, error] = await tryCatch(() =>
     Promise.all([
       Member.findByIdAndDelete(memberId),
-      Board.findOneAndUpdate(boardId, { $pull: { boardMembers: memberId } }),
+      Board.findByIdAndUpdate({_id : boardId}, { $pull: { boardMembers: memberId } }),
+    ])
+  );
+  if (error) return next(error);
+
+  res.status(NO_CONTENT).end();
+};
+exports.deleteMember = async (req, res, next) => {
+  const { memberId } = req.params;
+  const [response, error] = await tryCatch(() =>
+    Promise.all([
+      Member.findByIdAndDelete(memberId)
     ])
   );
   if (error) return next(error);
