@@ -15,7 +15,7 @@ exports.getuser = async (req, res, next) => {
 };
 exports.getUserMemberId = async (req, res, next) => {
   const { userId } = req.params;
-  const [user, error] = await tryCatch(() => Member.find({userId : userId}));
+  const [user, error] = await tryCatch(() => Member.find({ userId: userId }));
   if (error) return next(error);
   res.status(OK).json(user);
 };
@@ -32,21 +32,20 @@ exports.addMember = async (req, res, next) => {
   const selectedUserFields = "fname lname";
   let [createMember, error1] = await tryCatch(() => Member.create(newMember));
   if (error1) return next(error1);
-  const [response, error] = await tryCatch(
-    () =>
+  const [response, error] = await tryCatch(() =>
+    Promise.all([
       Board.findByIdAndUpdate(boardId, {
         $push: { boardMembers: createMember._id },
       }),
-    User.findByIdAndUpdate(req.body.userId, {
-      $push: { boards: boardId },
-    })
-    
+      User.findByIdAndUpdate(req.body.userId, {
+        $push: { boards: boardId },
+      }),
+    ])
   );
-  createMember = await createMember.populate({
-    path: "userId",
-    select: selectedUserFields,
-  })
-  
+  // createMember = await createMember.populate({
+  //   path: "userId",
+  //   select: selectedUserFields,
+  // });
 
   if (error) return next(error);
   res.status(CREATED).json(createMember);
@@ -54,9 +53,11 @@ exports.addMember = async (req, res, next) => {
 exports.updateMember = async (req, res, next) => {
   const { memberId } = req.params;
   const newMember = parseAddMemberRequest(req.body);
-  const [updatedmember, error1] = await tryCatch(() => Member.findByIdAndUpdate(memberId, req.body))
+  const [updatedmember, error1] = await tryCatch(() =>
+    Member.findByIdAndUpdate(memberId, req.body)
+  );
   if (error1) return next(error1);
-  
+
   res.status(OK).json(updatedmember);
 };
 
@@ -67,7 +68,10 @@ exports.deleteBoardMember = async (req, res, next) => {
   const [response, error] = await tryCatch(() =>
     Promise.all([
       Member.findByIdAndDelete(memberId),
-      Board.findByIdAndUpdate({_id : boardId}, { $pull: { boardMembers: memberId } }),
+      Board.findByIdAndUpdate(
+        { _id: boardId },
+        { $pull: { boardMembers: memberId } }
+      ),
     ])
   );
   if (error) return next(error);
@@ -77,9 +81,7 @@ exports.deleteBoardMember = async (req, res, next) => {
 exports.deleteMember = async (req, res, next) => {
   const { memberId } = req.params;
   const [response, error] = await tryCatch(() =>
-    Promise.all([
-      Member.findByIdAndDelete(memberId)
-    ])
+    Promise.all([Member.findByIdAndDelete(memberId)])
   );
   if (error) return next(error);
 
