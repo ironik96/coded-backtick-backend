@@ -72,7 +72,10 @@ exports.deleteBoardMember = async (req, res, next) => {
         { _id: boardId },
         { $pull: { boardMembers: memberId } }
       ),
-      User.findByIdAndUpdate( { $pull: { boards: boardId } })
+      User.findOneAndUpdate(
+        { boards: boardId },
+        { $pull: { boards: boardId } }
+      ),
     ])
   );
   if (error) return next(error);
