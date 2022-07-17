@@ -45,13 +45,19 @@ exports.deleteTask = async (req, res, next) => {
   res.status(NO_CONTENT).end();
 };
 
+exports.getTask = async (req, res, next) => {
+  const { taskId } = req.params;
+  const [task, error] = await tryCatch(() => Task.findById(taskId));
+  if (error) return next(error);
+  res.status(OK).json(task);
+};
 function parseAddTaskRequest(requestBody) {
   const { title, boardId, list, points } = requestBody;
   return { title, boardId, list, points };
 }
 function parseUpdateTaskRequest(requestBody) {
-  const { _id, title, boardId, list, points } = requestBody;
-  return { _id, title, boardId, list, points };
+  const { _id, title, boardId, list, points, assignedTo } = requestBody;
+  return { _id, title, boardId, list, points , assignedTo};
 }
 
 async function tryCatch(promise) {
