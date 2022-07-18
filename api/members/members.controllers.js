@@ -1,6 +1,7 @@
 const Member = require("../../models/BoardMember");
 const Board = require("../../models/Board");
 const User = require("../../models/User");
+const Notification = require("../../models/Notification");
 
 // status codes
 const OK = 200;
@@ -27,28 +28,49 @@ exports.getMember = async (req, res, next) => {
 };
 
 exports.addMember = async (req, res, next) => {
-  const { boardId } = req.params;
-  const newMember = parseAddMemberRequest(req.body);
-  const selectedUserFields = "fname lname";
-  let [createMember, error1] = await tryCatch(() => Member.create(newMember));
-  if (error1) return next(error1);
+  const inviteNotification = parseAddMemberRequest(req.body);
+  const member = {
+    role: "member",
+    userId: inviteNotification.userId,
+    boardId: inviteNotification.boardId,
+  };
+
+  const [createMember, createMemberError] = await tryCatch(() =>
+    Member.create(member)
+  );
+  if (createMemberError) return next(createMemberError);
+
   const [response, error] = await tryCatch(() =>
     Promise.all([
-      Board.findByIdAndUpdate(boardId, {
-        $push: { boardMembers: createMember._id },
+      Board.findByIdAndUpdate(
+        inviteNotification.boardId,
+        {
+          $push: { boardMembers: createMember._id },
+        },
+        { returnDocument: "after" }
+      ),
+      User.findByIdAndUpdate(inviteNotification.userId, {
+        $push: { boards: inviteNotification.boardId },
       }),
-      User.findByIdAndUpdate(req.body.userId, {
-        $push: { boards: boardId },
-      }),
+      Notification.findByIdAndUpdate(
+        inviteNotification._id,
+        inviteNotification,
+        { returnDocument: "after" }
+      ),
     ])
   );
-  // createMember = await createMember.populate({
-  //   path: "userId",
-  //   select: selectedUserFields,
-  // });
+
+  const selectedBoardMemberFields = "userId points -_id";
+  const selectedBoardMemberUserFields = "fname -_id";
+  await response[0].populate({
+    path: "boardMembers",
+    select: selectedBoardMemberFields,
+    options: { limit: 3, sort: { points: -1 } },
+    populate: { path: "userId", select: selectedBoardMemberUserFields },
+  });
 
   if (error) return next(error);
-  res.status(CREATED).json(createMember);
+  res.status(CREATED).json({ board: response[0], notification: response[2] });
 };
 exports.updateMember = async (req, res, next) => {
   const { memberId } = req.params;
@@ -102,6 +124,6 @@ async function tryCatch(promise) {
 }
 
 function parseAddMemberRequest(reqBody) {
-  const { boardId, userId } = reqBody;
-  return { role: "member", boardId: boardId, userId: userId };
+  const { boardId, seen, senderId, title, type, userId, _id } = reqBody;
+  return { boardId, seen, senderId, title, type, userId, _id };
 }

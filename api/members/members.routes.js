@@ -8,12 +8,12 @@ const {
   getuser,
   updateMember,
   getUserMemberId,
-  deleteMember
+  deleteMember,
 } = require("./members.controllers");
 
 router.get("/member/:memberId", getMember);
 router.get("/getUserMemberId/:userId", getUserMemberId);
-router.put("/:boardId/", addMember);
+router.put("/add-member", addMember);
 router.put("/user/:userId/", getuser);
 router.put("/member/:memberId", updateMember);
 router.delete("/:boardId/:memberId", deleteBoardMember);

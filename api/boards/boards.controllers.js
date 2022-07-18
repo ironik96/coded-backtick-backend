@@ -65,10 +65,7 @@ exports.deleteBoard = async (req, res, next) => {
   const [response, error] = await tryCatch(() =>
     Promise.all([
       Board.findByIdAndDelete(boardId),
-      User.findOneAndUpdate(
-        { boards: boardId },
-        { $pull: { boards: boardId } }
-      ),
+      User.find({ boards: boardId }).updateMany({ $pull: { boards: boardId } }),
       BoardMember.deleteMany({ boardId }),
       Task.deleteMany({ boardId }),
     ])
@@ -93,6 +90,6 @@ function parseAddBoardRequest(reqBody) {
 }
 
 function parseUpdateBoardRequest(reqBody) {
-  const { title, description, startDate, endDate, _id , boardMembers } = reqBody;
-  return { title, description, startDate, endDate, _id , boardMembers};
+  const { title, description, startDate, endDate, _id, boardMembers } = reqBody;
+  return { title, description, startDate, endDate, _id, boardMembers };
 }
