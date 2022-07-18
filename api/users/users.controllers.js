@@ -77,8 +77,7 @@ exports.getUser = async (req, res, next) => {
 
   const [user, userError] = await tryCatch(() => queryUserData(userId));
   if (userError) return next(userError);
-  // todo: query notifications and add it to the response
-  // todo: flatten user object
+
   res.status(200).json(user);
 };
 
@@ -92,9 +91,8 @@ async function tryCatch(promise) {
 }
 
 async function queryUserData(id) {
-  const selectedUserFields = "image backtick boards";
-  const selectedBoardFields =
-    "title description startDate endDate boardMembers createdBy  slug";
+  const selectedUserFields = "-password";
+  const selectedBoardFields = "-tasks -rewards";
   const selectedBoardMemberFields = "userId points -_id";
   const selectedBoardMemberUserFields = "fname -_id";
 
@@ -105,6 +103,7 @@ async function queryUserData(id) {
       populate: {
         path: "boardMembers",
         select: selectedBoardMemberFields,
+        options: { limit: 3, sort: { points: -1 } },
         populate: { path: "userId", select: selectedBoardMemberUserFields },
       },
     })

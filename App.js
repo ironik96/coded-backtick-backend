@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const passport = require("passport");
+const morgan = require("morgan");
 const cors = require("cors");
 const { localStrategy, jwtStrategy } = require("./middleware/passport");
 const connectDB = require("./database");
@@ -8,6 +9,9 @@ const connectDB = require("./database");
 //routes
 const userRoutes = require("./api/users/users.routes");
 const boardRoutes = require("./api/boards/boards.routes");
+const boardMembersRoutes = require("./api/members/members.routes");
+const taskRoutes = require("./api/tasks/tasks.routes");
+const notificationRoutes = require("./api/notifications/notifications.routes");
 
 connectDB();
 
@@ -15,6 +19,11 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
+app.use(
+  morgan(
+    "[:date[clf]] :method :url :status :response-time ms - :res[content-length]"
+  )
+);
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 const upload = require('./multer');
@@ -23,6 +32,9 @@ app.use(userRoutes);
 app.use("/boards", boardRoutes);
 app.use(express.static('public')); 
 app.use('/images', express.static('images'));
+app.use("/boardMembers", boardMembersRoutes);
+app.use("/tasks", taskRoutes);
+app.use("/notifications", notificationRoutes);
 
 app.post('/profile', upload.single('avatar'), function (req, res, next) {
   // req.file is the `avatar` file
