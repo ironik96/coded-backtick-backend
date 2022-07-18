@@ -17,17 +17,29 @@ app.use(express.json());
 app.use(passport.initialize());
 passport.use(localStrategy);
 passport.use(jwtStrategy);
-
+const upload = require('./multer');
 //User Route
 app.use(userRoutes);
 app.use("/boards", boardRoutes);
+app.use(express.static('public')); 
+app.use('/images', express.static('images'));
 
+app.post('/profile', upload.single('avatar'), function (req, res, next) {
+  // req.file is the `avatar` file
+  // console.log(req.file.originalname)
+  // req.body will hold the text fields, if there were any
+  res.send(req.file.originalname);
+})
+// app.get('/',function(req,res) {
+//   res.sendFile(__dirname + '/index.html')
+// });
 //no path
 app.use((req, res, next) => {
   const err = new Error("Not Found");
   err.status = 404;
   next(err);
 });
+
 
 //error handling middleware
 app.use((err, req, res, next) => {

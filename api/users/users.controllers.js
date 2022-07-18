@@ -21,7 +21,18 @@ exports.register = async (req, res) => {
   try {
     const hashPassword = await bcrypt.hash(req.body.password, 5);
     req.body.password = hashPassword;
-    const newUser = await User.create(req.body);
+    var profile = {
+      fname: req.body.fname,
+      lname: req.body.lname,
+      email :req.body.email,
+      password: req.body.password,
+      image: "",
+      walletId: null,
+      bio: "",
+      birthday: "",
+      backtick: 0
+    };
+    const newUser = await User.create(profile);
     const payload = {
       _id: newUser._id,
       email: newUser.email,
@@ -29,6 +40,15 @@ exports.register = async (req, res) => {
     };
     const token = jwt.sign(payload, keys.JWT_SECRET);
     res.status(201).json(token);
+  } catch (err) {
+    res.status(500).json("Server Error");
+  }
+};
+exports.Userinfo = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById(userId, '-password');
+    res.status(201).json(user);
   } catch (err) {
     res.status(500).json("Server Error");
   }
@@ -43,6 +63,15 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+exports.UpdateUser = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findByIdAndUpdate(userId, req.body, {new: true}).select("-password")
+    res.status(201).json(user); 
+  } catch (err) {
+    res.status(500).json("Server Error");
+  }
+};
 exports.getUser = async (req, res, next) => {
   const { userId } = req.params;
 

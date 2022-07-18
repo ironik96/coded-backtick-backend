@@ -14,7 +14,9 @@ const UserSchema = new mongoose.Schema({
   image: String,
   walletId: String,
   bio: String,
-  birthday: Date,
+  birthday: {
+    type:Date,
+  },
   backtick: Number,
   boards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Board" }],
 });
