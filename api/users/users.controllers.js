@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
       walletId: null,
       bio: "",
       birthday: "",
-      backtick: 0,
+      backtick: null,
     };
     const newUser = await User.create(profile);
     const payload = {

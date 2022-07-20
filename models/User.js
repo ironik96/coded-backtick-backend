@@ -13,8 +13,7 @@ const UserSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default:
-      "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png",
+    default: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
   },
   walletId: String,
   bio: String,
