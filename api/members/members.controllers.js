@@ -86,7 +86,7 @@ exports.updateMember = async (req, res, next) => {
 exports.deleteBoardMember = async (req, res, next) => {
   const { boardId } = req.params;
   const { memberId } = req.params;
-  console.log(memberId, "//");
+  const { userId } = req.params;
   const [response, error] = await tryCatch(() =>
     Promise.all([
       Member.findByIdAndDelete(memberId),
@@ -94,20 +94,8 @@ exports.deleteBoardMember = async (req, res, next) => {
         { _id: boardId },
         { $pull: { boardMembers: memberId } }
       ),
-      User.findOneAndUpdate(
-        { boards: boardId },
-        { $pull: { boards: boardId } }
-      ),
+      User.findByIdAndUpdate(userId, { $pull: { boards: boardId } }),
     ])
-  );
-  if (error) return next(error);
-
-  res.status(NO_CONTENT).end();
-};
-exports.deleteMember = async (req, res, next) => {
-  const { memberId } = req.params;
-  const [response, error] = await tryCatch(() =>
-    Promise.all([Member.findByIdAndDelete(memberId)])
   );
   if (error) return next(error);
 

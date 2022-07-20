@@ -16,6 +16,6 @@ router.get("/getUserMemberId/:userId", getUserMemberId);
 router.put("/add-member", addMember);
 router.put("/user/:userId/", getuser);
 router.put("/member/:memberId", updateMember);
-router.delete("/:boardId/:memberId", deleteBoardMember);
-router.delete("/:memberId", deleteMember);
+router.delete("/:boardId/:memberId/:userId", deleteBoardMember);
+
 module.exports = router;
