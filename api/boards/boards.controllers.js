@@ -17,7 +17,7 @@ exports.getBoards = async (req, res, next) => {
 exports.getBoardById = async (req, res, next) => {
   const { boardId } = req.params;
 
-  const selectedUserFields = "fname lname";
+  const selectedUserFields = "fname lname image";
   const [board, error] = await tryCatch(() =>
     Board.findById(boardId)
       .populate("tasks")
