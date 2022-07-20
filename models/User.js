@@ -11,11 +11,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     require,
   },
-  image: String,
+  image: {
+    type: String,
+    default:
+      "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png",
+  },
   walletId: String,
   bio: String,
   birthday: {
-    type:Date,
+    type: Date,
   },
   backtick: Number,
   boards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Board" }],
