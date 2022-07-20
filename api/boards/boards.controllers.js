@@ -17,7 +17,7 @@ exports.getBoards = async (req, res, next) => {
 exports.getBoardById = async (req, res, next) => {
   const { boardId } = req.params;
 
-  const selectedUserFields = "fname lname";
+  const selectedUserFields = "fname lname image";
   const [board, error] = await tryCatch(() =>
     Board.findById(boardId)
       .populate("tasks")
@@ -56,6 +56,15 @@ exports.updateBoard = async (req, res, next) => {
   );
   if (error) return next(error);
 
+  const selectedBoardMemberFields = "userId points -_id";
+  const selectedBoardMemberUserFields = "fname -_id";
+  await updatedBoard.populate({
+    path: "boardMembers",
+    select: selectedBoardMemberFields,
+    options: { limit: 3, sort: { points: -1 } },
+    populate: { path: "userId", select: selectedBoardMemberUserFields },
+  });
+
   res.status(OK).json(updatedBoard);
 };
 
@@ -90,6 +99,6 @@ function parseAddBoardRequest(reqBody) {
 }
 
 function parseUpdateBoardRequest(reqBody) {
-  const { title, description, startDate, endDate, _id, boardMembers } = reqBody;
-  return { title, description, startDate, endDate, _id, boardMembers };
+  const { title, description, startDate, endDate, _id } = reqBody;
+  return { title, description, startDate, endDate, _id };
 }

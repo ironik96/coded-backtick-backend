@@ -24,13 +24,12 @@ exports.register = async (req, res) => {
     var profile = {
       fname: req.body.fname,
       lname: req.body.lname,
-      email :req.body.email,
+      email: req.body.email,
       password: req.body.password,
-      image: "",
       walletId: null,
       bio: "",
       birthday: "",
-      backtick: 0
+      backtick: 0,
     };
     const newUser = await User.create(profile);
     const payload = {
@@ -47,7 +46,7 @@ exports.register = async (req, res) => {
 exports.Userinfo = async (req, res) => {
   const { userId } = req.params;
   try {
-    const user = await User.findById(userId, '-password');
+    const user = await User.findById(userId, "-password");
     res.status(201).json(user);
   } catch (err) {
     res.status(500).json("Server Error");
@@ -66,8 +65,10 @@ exports.getUsers = async (req, res) => {
 exports.UpdateUser = async (req, res) => {
   const { userId } = req.params;
   try {
-    const user = await User.findByIdAndUpdate(userId, req.body, {new: true}).select("-password")
-    res.status(201).json(user); 
+    const user = await User.findByIdAndUpdate(userId, req.body, {
+      new: true,
+    }).select("-password");
+    res.status(201).json(user);
   } catch (err) {
     res.status(500).json("Server Error");
   }
