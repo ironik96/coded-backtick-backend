@@ -12,6 +12,7 @@ const boardRoutes = require("./api/boards/boards.routes");
 const boardMembersRoutes = require("./api/members/members.routes");
 const taskRoutes = require("./api/tasks/tasks.routes");
 const notificationRoutes = require("./api/notifications/notifications.routes");
+const rewardRoutes = require("./api/rewards/rewards.routes");
 
 connectDB();
 
@@ -26,22 +27,23 @@ app.use(
 );
 passport.use(localStrategy);
 passport.use(jwtStrategy);
-const upload = require('./multer');
+const upload = require("./multer");
 //User Route
 app.use(userRoutes);
 app.use("/boards", boardRoutes);
-app.use(express.static('public')); 
-app.use('/images', express.static('images'));
+app.use(express.static("public"));
+app.use("/images", express.static("images"));
 app.use("/boardMembers", boardMembersRoutes);
 app.use("/tasks", taskRoutes);
 app.use("/notifications", notificationRoutes);
+app.use("/rewards", rewardRoutes);
 
-app.post('/profile', upload.single('avatar'), function (req, res, next) {
+app.post("/profile", upload.single("avatar"), function (req, res, next) {
   // req.file is the `avatar` file
   // console.log(req.file.originalname)
   // req.body will hold the text fields, if there were any
   res.send(req.file.originalname);
-})
+});
 // app.get('/',function(req,res) {
 //   res.sendFile(__dirname + '/index.html')
 // });
@@ -51,7 +53,6 @@ app.use((req, res, next) => {
   err.status = 404;
   next(err);
 });
-
 
 //error handling middleware
 app.use((err, req, res, next) => {
