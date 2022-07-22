@@ -21,6 +21,7 @@ exports.getBoardById = async (req, res, next) => {
   const [board, error] = await tryCatch(() =>
     Board.findById(boardId)
       .populate("tasks")
+      .populate("rewards")
       .populate({
         path: "boardMembers",
         populate: {
