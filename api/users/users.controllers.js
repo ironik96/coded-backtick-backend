@@ -94,8 +94,8 @@ async function tryCatch(promise) {
 async function queryUserData(id) {
   const selectedUserFields = "-password";
   const selectedBoardFields = "-tasks -rewards";
-  const selectedBoardMemberFields = "userId points -_id";
-  const selectedBoardMemberUserFields = "fname -_id";
+  const selectedBoardMemberFields = "userId points role";
+  const selectedBoardMemberUserFields = "fname";
 
   return User.findById(id)
     .populate({
@@ -104,7 +104,8 @@ async function queryUserData(id) {
       populate: {
         path: "boardMembers",
         select: selectedBoardMemberFields,
-        options: { limit: 3, sort: { points: -1 } },
+        match: { $or: [{ userId: id }, { role: "member" }] },
+        options: { sort: { points: -1 } },
         populate: { path: "userId", select: selectedBoardMemberUserFields },
       },
     })
