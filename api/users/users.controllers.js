@@ -75,6 +75,7 @@ exports.UpdateUser = async (req, res) => {
 };
 exports.getUser = async (req, res, next) => {
   const { userId } = req.params;
+  const { io } = req;
 
   const [user, userError] = await tryCatch(() => queryUserData(userId));
   if (userError) return next(userError);

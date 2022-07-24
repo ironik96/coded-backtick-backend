@@ -23,12 +23,13 @@ exports.getAllNotifications = async (req, res, next) => {
 };
 exports.createNotification = async (req, res, next) => {
   const notificationRequest = parseNotificationsRequest(req.body);
-
+  const { io } = req;
   const [notification, error] = await tryCatch(() =>
     Notification.create(notificationRequest)
   );
   if (error) next(error);
 
+  io.emit("notification", notification);
   res.status(CREATED).json(notification);
 };
 
