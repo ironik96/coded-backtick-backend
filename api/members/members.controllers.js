@@ -29,6 +29,7 @@ exports.getMember = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
   const inviteNotification = parseAddMemberRequest(req.body);
+  const { io } = req;
   const member = {
     role: "member",
     userId: inviteNotification.userId,
@@ -60,16 +61,18 @@ exports.addMember = async (req, res, next) => {
     ])
   );
 
-  const selectedBoardMemberFields = "userId points -_id";
-  const selectedBoardMemberUserFields = "fname -_id";
+  const selectedBoardMemberFields = "userId points role";
+  const selectedBoardMemberUserFields = "fname";
   await response[0].populate({
     path: "boardMembers",
     select: selectedBoardMemberFields,
-    options: { limit: 3, sort: { points: -1 } },
+    match: { role: "member" },
+    options: { sort: { points: -1 } },
     populate: { path: "userId", select: selectedBoardMemberUserFields },
   });
 
   if (error) return next(error);
+  io.emit("add-member", response);
   res.status(CREATED).json({ board: response[0], notification: response[2] });
 };
 exports.updateMember = async (req, res, next) => {
