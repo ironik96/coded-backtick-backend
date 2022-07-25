@@ -70,13 +70,16 @@ exports.addMember = async (req, res, next) => {
 };
 exports.updateMember = async (req, res, next) => {
   const { memberId } = req.params;
-  const newMember = parseAddMemberRequest(req.body);
-  const [updatedmember, error1] = await tryCatch(() =>
-    Member.findByIdAndUpdate(memberId, req.body)
+  const { io } = req;
+  const [updatedMember, error] = await tryCatch(() =>
+    Member.findByIdAndUpdate(memberId, req.body, {
+      returnDocument: "after",
+    }).then((member) => member.fetchForBoard())
   );
-  if (error1) return next(error1);
+  if (error) return next(error);
 
-  res.status(OK).json(updatedmember);
+  io.emit("board-task", { type: "done", updatedMember });
+  res.status(OK).json(updatedMember);
 };
 
 exports.deleteBoardMember = async (req, res, next) => {

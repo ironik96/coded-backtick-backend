@@ -8,6 +8,7 @@ const NO_CONTENT = 204;
 
 exports.addTaskToBoard = async (req, res, next) => {
   const task = parseAddTaskRequest(req.body);
+  const { io } = req;
 
   const [newTask, taskError] = await tryCatch(() => Task.create(task));
   if (taskError) return next(taskError);
@@ -17,22 +18,26 @@ exports.addTaskToBoard = async (req, res, next) => {
   );
   if (error) return next(error);
 
+  io.emit("board-task", { type: "new", newTask });
   res.status(CREATED).json(newTask);
 };
 
 exports.updateTask = async (req, res, next) => {
   const task = parseUpdateTaskRequest(req.body);
+  const { io } = req;
 
   const [updatedTask, error] = await tryCatch(() =>
     Task.findByIdAndUpdate(task._id, task, { returnDocument: "after" })
   );
   if (error) return next(error);
 
+  io.emit("board-task", { type: "update", updatedTask });
   res.status(OK).json(updatedTask);
 };
 
 exports.deleteTask = async (req, res, next) => {
   const { taskId } = req.params;
+  const { io } = req;
 
   const [response, error] = await tryCatch(() =>
     Promise.all([
@@ -42,6 +47,9 @@ exports.deleteTask = async (req, res, next) => {
   );
   if (error) return next(error);
 
+  const boardId = response[1]._id;
+
+  io.emit("board-task", { type: "delete", taskId, boardId });
   res.status(NO_CONTENT).end();
 };
 
@@ -57,7 +65,7 @@ function parseAddTaskRequest(requestBody) {
 }
 function parseUpdateTaskRequest(requestBody) {
   const { _id, title, boardId, list, points, assignedTo } = requestBody;
-  return { _id, title, boardId, list, points , assignedTo};
+  return { _id, title, boardId, list, points, assignedTo };
 }
 
 async function tryCatch(promise) {
