@@ -29,6 +29,7 @@ exports.getMember = async (req, res, next) => {
 
 exports.addMember = async (req, res, next) => {
   const inviteNotification = parseAddMemberRequest(req.body);
+  const { io } = req;
   const member = {
     role: "member",
     userId: inviteNotification.userId,
@@ -48,39 +49,37 @@ exports.addMember = async (req, res, next) => {
           $push: { boardMembers: createMember._id },
         },
         { returnDocument: "after" }
-      ),
+      ).then((board) => board.forNewMember()),
       User.findByIdAndUpdate(inviteNotification.userId, {
         $push: { boards: inviteNotification.boardId },
-      }),
+      }).select("-password"),
       Notification.findByIdAndUpdate(
         inviteNotification._id,
         inviteNotification,
         { returnDocument: "after" }
       ),
+      createMember.fetchForBoard(),
     ])
   );
-
-  const selectedBoardMemberFields = "userId points -_id";
-  const selectedBoardMemberUserFields = "fname -_id";
-  await response[0].populate({
-    path: "boardMembers",
-    select: selectedBoardMemberFields,
-    options: { limit: 3, sort: { points: -1 } },
-    populate: { path: "userId", select: selectedBoardMemberUserFields },
-  });
-
   if (error) return next(error);
-  res.status(CREATED).json({ board: response[0], notification: response[2] });
+  const [board, user, notification, memberForBoard] = response;
+
+  io.emit("add-member", [board, user]);
+  io.emit("board-add-member", memberForBoard);
+  res.status(CREATED).json({ board, notification });
 };
 exports.updateMember = async (req, res, next) => {
   const { memberId } = req.params;
-  const newMember = parseAddMemberRequest(req.body);
-  const [updatedmember, error1] = await tryCatch(() =>
-    Member.findByIdAndUpdate(memberId, req.body)
+  const { io } = req;
+  const [updatedMember, error] = await tryCatch(() =>
+    Member.findByIdAndUpdate(memberId, req.body, {
+      returnDocument: "after",
+    }).then((member) => member.fetchForBoard())
   );
-  if (error1) return next(error1);
+  if (error) return next(error);
 
-  res.status(OK).json(updatedmember);
+  io.emit("board-task", { type: "done", updatedMember });
+  res.status(OK).json(updatedMember);
 };
 
 exports.deleteBoardMember = async (req, res, next) => {
