@@ -15,4 +15,16 @@ const BoardSchema = new mongoose.Schema({
   slug: { type: String, slug: "title", unique: true },
 });
 
+BoardSchema.methods.forNewMember = function () {
+  const selectedBoardMemberFields = "userId points role";
+  const selectedBoardMemberUserFields = "fname";
+  return this.populate({
+    path: "boardMembers",
+    select: selectedBoardMemberFields,
+    match: { role: "member" },
+    options: { sort: { points: -1 } },
+    populate: { path: "userId", select: selectedBoardMemberUserFields },
+  });
+};
+
 module.exports = mongoose.model("Board", BoardSchema);

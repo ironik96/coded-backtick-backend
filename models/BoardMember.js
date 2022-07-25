@@ -16,4 +16,12 @@ const BoardMemberSchema = new mongoose.Schema({
   rank: { type: Number, default: 0 },
 });
 
+BoardMemberSchema.methods.fetchForBoard = function () {
+  const selectedUserFields = "fname lname image";
+  return this.populate({
+    path: "userId",
+    select: selectedUserFields,
+  });
+};
+
 module.exports = mongoose.model("BoardMember", BoardMemberSchema);

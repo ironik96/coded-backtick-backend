@@ -49,31 +49,24 @@ exports.addMember = async (req, res, next) => {
           $push: { boardMembers: createMember._id },
         },
         { returnDocument: "after" }
-      ),
+      ).then((board) => board.forNewMember()),
       User.findByIdAndUpdate(inviteNotification.userId, {
         $push: { boards: inviteNotification.boardId },
-      }),
+      }).select("-password"),
       Notification.findByIdAndUpdate(
         inviteNotification._id,
         inviteNotification,
         { returnDocument: "after" }
       ),
+      createMember.fetchForBoard(),
     ])
   );
-
-  const selectedBoardMemberFields = "userId points role";
-  const selectedBoardMemberUserFields = "fname";
-  await response[0].populate({
-    path: "boardMembers",
-    select: selectedBoardMemberFields,
-    match: { role: "member" },
-    options: { sort: { points: -1 } },
-    populate: { path: "userId", select: selectedBoardMemberUserFields },
-  });
-
   if (error) return next(error);
-  io.emit("add-member", response);
-  res.status(CREATED).json({ board: response[0], notification: response[2] });
+  const [board, user, notification, memberForBoard] = response;
+
+  io.emit("add-member", [board, user]);
+  io.emit("board-add-member", memberForBoard);
+  res.status(CREATED).json({ board, notification });
 };
 exports.updateMember = async (req, res, next) => {
   const { memberId } = req.params;
