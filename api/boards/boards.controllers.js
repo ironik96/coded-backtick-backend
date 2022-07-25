@@ -100,6 +100,6 @@ function parseAddBoardRequest(reqBody) {
 }
 
 function parseUpdateBoardRequest(reqBody) {
-  const { title, description, startDate, endDate, _id } = reqBody;
-  return { title, description, startDate, endDate, _id };
+  const { title, description, startDate, endDate, _id ,boardStatus} = reqBody;
+  return { title, description, startDate, endDate, _id ,boardStatus};
 }

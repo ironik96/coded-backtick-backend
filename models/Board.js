@@ -13,6 +13,7 @@ const BoardSchema = new mongoose.Schema({
   rewards: [{ type: mongoose.Schema.Types.ObjectId, ref: "Reward" }],
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   slug: { type: String, slug: "title", unique: true },
+  boardStatus :{ type: String, default: "Active" }
 });
 
 module.exports = mongoose.model("Board", BoardSchema);
